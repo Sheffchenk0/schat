@@ -7,6 +7,7 @@ import { User } from '@prisma/client';
 // Components
 import Avatar from '../Avatar';
 import DesctopItem from './DesctopItem';
+import SettingsModal from './SettingsModal';
 
 interface DesctopSidebarProps {
   currentUser: User;
@@ -17,8 +18,10 @@ const DesctopSidebar: React.FC<DesctopSidebarProps> = ({ currentUser }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      className="
+    <>
+      <SettingsModal currentUser={currentUser} isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <div
+        className="
         hidden
         lg:fixed
         lg:inset-y-0
@@ -34,51 +37,52 @@ const DesctopSidebar: React.FC<DesctopSidebarProps> = ({ currentUser }) => {
         lg:flex-col
         justify-between
         ">
-      <nav
-        className="
+        <nav
+          className="
             mt-4
             flex
             flex-col
             justify-between
             ">
-        <ul
-          className="
+          <ul
+            className="
                 flex
                 flex-col
                 items-center
                 gap-1
                 ">
-          {routes.map((item) => (
-            <DesctopItem
-              key={item.label}
-              href={item.href}
-              label={item.label}
-              icon={item.icon}
-              active={item.active}
-              onClick={item.onClick}
-            />
-          ))}
-        </ul>
-      </nav>
-      <nav
-        className="
+            {routes.map((item) => (
+              <DesctopItem
+                key={item.label}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                active={item.active}
+                onClick={item.onClick}
+              />
+            ))}
+          </ul>
+        </nav>
+        <nav
+          className="
             mt-4
             flex
             flex-col
             justify-between
             items-center
         ">
-        <div
-          onClick={() => setIsOpen(true)}
-          className="
+          <div
+            onClick={() => setIsOpen(true)}
+            className="
                 cursor-pointer
                 hover:opacity-75
                 transition
             ">
-          <Avatar user={currentUser} />
-        </div>
-      </nav>
-    </div>
+            <Avatar user={currentUser} />
+          </div>
+        </nav>
+      </div>
+    </>
   );
 };
 
