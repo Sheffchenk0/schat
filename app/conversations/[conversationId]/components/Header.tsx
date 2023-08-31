@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { HiChevronLeft, HiEllipsisHorizontal } from 'react-icons/hi2';
+
+// Hooks
 import useOtherUser from '@/app/hooks/useOtherUser';
 
 // Types
-import { FullConversationType } from '@/app/types';
 import { Conversation, User } from '@prisma/client';
 
 // Components
 import ProfileDrawer from './ProfileDrawer';
 import Link from 'next/link';
 import Avatar from '@/app/components/Avatar';
+import AvatarGroup from '@/app/components/AvatarGroup';
+import { HiChevronLeft, HiEllipsisHorizontal } from 'react-icons/hi2';
 
 interface HeaderProps {
   conversation: Conversation & { users: User[] };
@@ -64,7 +66,11 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
                 ">
             <HiChevronLeft size={32} />
           </Link>
-          <Avatar user={otherUser} />
+          {conversation.isGroup ? (
+            <AvatarGroup users={conversation.users} />
+          ) : (
+            <Avatar user={otherUser} />
+          )}
           <div className="flex flex-col">
             <div>{conversation.name || otherUser.name}</div>
             <div

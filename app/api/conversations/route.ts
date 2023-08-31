@@ -16,6 +16,12 @@ export async function POST(request: Request) {
       return new NextResponse('Invalid data', { status: 400 });
     }
 
+    if (currentUser?.id === userId) {
+      return new NextResponse('Invalid data. Сannot create a conversation with yourself', {
+        status: 400,
+      });
+    }
+
     if (isGroup) {
       const newConversation = await prisma.conversation.create({
         data: {

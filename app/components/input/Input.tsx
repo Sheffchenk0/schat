@@ -12,9 +12,19 @@ interface InputProps {
   register: UseFormRegister<FieldValues>;
   errors: FieldErrors;
   disabled?: boolean;
+  autoComplete?: boolean;
 }
 
-const Input: React.FC<InputProps> = ({ label, id, type, required, register, errors, disabled }) => {
+const Input: React.FC<InputProps> = ({
+  autoComplete,
+  label,
+  id,
+  type,
+  required,
+  register,
+  errors,
+  disabled,
+}) => {
   return (
     <div>
       <label
@@ -32,7 +42,7 @@ const Input: React.FC<InputProps> = ({ label, id, type, required, register, erro
         <input
           id={id}
           type={type}
-          autoComplete={id}
+          autoComplete={autoComplete ? id : 'off'}
           disabled={disabled}
           {...register(id, { required })}
           className={clsx(

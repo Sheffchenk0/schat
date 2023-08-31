@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Fragment, useMemo, useState } from 'react';
+import React, { Fragment, useCallback, useMemo, useState } from 'react';
 import useOtherUser from '@/app/hooks/useOtherUser';
 import { Conversation, User } from '@prisma/client';
 import { format } from 'date-fns';
@@ -10,6 +10,11 @@ import { IoClose, IoTrash } from 'react-icons/io5';
 import { Transition, Dialog } from '@headlessui/react';
 import Avatar from '@/app/components/Avatar';
 import ConfirmModal from './ConfirmModal';
+import AvatarGroup from '@/app/components/AvatarGroup';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { toast } from 'react-hot-toast';
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -20,8 +25,10 @@ interface ProfileDrawerProps {
 }
 
 const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ data, isOpen, onClose }) => {
+  const session = useSession();
   const otherUser = useOtherUser(data);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const router = useRouter();
 
   const joinedDate = useMemo(() => {
     return format(otherUser.createdAt, 'PP');
@@ -38,6 +45,19 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ data, isOpen, onClose }) 
 
     return 'Active';
   }, [data]);
+
+  const handleClick = useCallback(
+    (userId: string, email: string) => {
+      if (email === session.data?.user?.email || !session.data?.user?.email) {
+        toast(`It's you`, { icon: '👏', duration: 900 });
+        return null;
+      }
+      axios.post('/api/conversations', { userId }).then((data) => {
+        router.push(`/conversations/${data.data.id}`);
+      });
+    },
+    [router, session.data?.user?.email],
+  );
 
   return (
     <>
@@ -151,12 +171,16 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ data, isOpen, onClose }) 
                             relative
                             mt-6
                             flex-1
-                            px-4
+                            px-2
                             sm:px-6
                         ">
                         <div className="flex flex-col items-center">
                           <div className="mb-2">
-                            <Avatar user={otherUser} />
+                            {data.isGroup ? (
+                              <AvatarGroup users={data.users} />
+                            ) : (
+                              <Avatar user={otherUser} />
+                            )}
                           </div>
                           <div>{title}</div>
                           <div className="text-sm text-gray-500">{statusText}</div>
@@ -200,6 +224,7 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ data, isOpen, onClose }) 
                                 pt-5
                                 sm:px-0
                                 sm:pt-0
+                              
                             ">
                             <dl
                               className="
@@ -208,6 +233,50 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ data, isOpen, onClose }) 
                                 sm:space-y-6
                                 sm:px-6
                             ">
+                              {data.isGroup && (
+                                <div>
+                                  <dt
+                                    className="
+                                      font-medium
+                                      text-sm
+                                      text-gray-500
+                                      sm:w-40
+                                      sm:flex-shrink-0
+                                    ">
+                                    Members
+                                  </dt>
+                                  <dd
+                                    className="
+                                          flex
+                                          flex-col
+                                          space-y-1
+                                          mt-5
+                                        ">
+                                    {data.users.map((user) => (
+                                      <div
+                                        key={user.id}
+                                        onClick={() => handleClick(user.id, user.email)}
+                                        className="
+                                        flex
+                                        items-center
+                                        cursor-pointer
+                                        hover:bg-neutral-100
+                                        rounded-lg
+                                        px-4
+                                        py-3
+                                        transition
+                                        space-x-3
+                                          ">
+                                        <Avatar user={user} />
+                                        <div className="flex flex-col">
+                                          <div className="">{user.name}</div>
+                                          <div className="text-sm text-gray-500">{user.email}</div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </dd>
+                                </div>
+                              )}
                               {!data.isGroup && (
                                 <div>
                                   <dt

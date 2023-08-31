@@ -5,8 +5,8 @@ import { Transition, Dialog } from '@headlessui/react';
 import { IoClose } from 'react-icons/io5';
 
 interface ModalProps {
-  isOpen?: boolean;
   onClose: () => void;
+  isOpen?: boolean;
   children: ReactNode;
 }
 
